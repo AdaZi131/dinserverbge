@@ -37,9 +37,9 @@ import java.util.logging.Logger;
  */
 public class DinserverAuth {
 
-    private final String DATAPATH = "./data/auth.bin";
+    private static final String DATAPATH = "./data/auth.bin";
     
-    public String Register(String nick, String pass, Socket socket) throws NoSuchAlgorithmException, UnsupportedEncodingException, IOException{
+    public static String Register(String nick, String pass, Socket socket) throws NoSuchAlgorithmException, UnsupportedEncodingException, IOException{
         /*MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(pass.getBytes("UTF-8"));
         byte[] passDigest = md.digest();*/
@@ -70,7 +70,7 @@ public class DinserverAuth {
         }
         return result;
     }
-    public boolean Login(String nick, String pass, Socket socket) throws IOException{
+    public static boolean Login(String nick, String pass, Socket socket) throws IOException{
         boolean logged = false;
         String input = nick+":"+pass; 
         
@@ -87,10 +87,9 @@ public class DinserverAuth {
                 logged = false;
             }
         }
-        System.out.println(DinserverMaster.listUsers());
         return logged;
     }
-    public ArrayList<String> LoadData() throws IOException{
+    public static ArrayList<String> LoadData() throws IOException{
         ArrayList<String> data = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(DATAPATH))){
             String sCurrentLine;
@@ -104,7 +103,7 @@ public class DinserverAuth {
         System.out.println("Loaded auth data");
         return data;
     }
-    private void CreateDataFile(){
+    private static void CreateDataFile(){
         try {
             File DATAFILE = new File(DATAPATH);
             DATAFILE.getParentFile().mkdirs(); 

@@ -32,8 +32,8 @@ public class DinserverProtocol {
     private static final int IDLE = 0;
     private static final int AUTH = 1;
     private static final int LOGGED = 2;
-    private static final int SETUP = 3;
-    private static final int SYNC = 4;
+    private static final int INIT = 3;
+    private static final int SETUP = 4;
 
     private int state = IDLE;
 
@@ -71,6 +71,16 @@ public class DinserverProtocol {
                         output = "403";
                     }
                 }
+            } catch (JSONException e) {
+                output = "400 JSON error "+e+"\nTry again";
+            }
+            if(output.equals("200") && DinserverMaster.getUsers().size() > 0){
+                output = "Initialize";
+                state = INIT;
+            }
+        } else if(state == INIT){
+            try{
+                JSONArray auth = new JSONArray(input);
             } catch (JSONException e) {
                 output = "400 JSON error "+e+"\nTry again";
             }

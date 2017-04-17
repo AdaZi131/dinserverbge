@@ -60,7 +60,11 @@ public class DinserverThread  extends Thread {
                     break;
                 }
             }
-            System.out.println("[ - ]" + clientAddr + " disconnected.");
+            if(DinserverMaster.removeUser(socket)){
+                System.out.println("[ - ]" + clientAddr + " disconnected.");
+            }else{
+                System.out.println("[ - ]" + clientAddr + " LOST.");
+            }
             socket.close();
         } catch (IOException | NoSuchAlgorithmException ex) {
             Logger.getLogger(DinserverThread.class.getName()).log(Level.SEVERE, null, ex);
