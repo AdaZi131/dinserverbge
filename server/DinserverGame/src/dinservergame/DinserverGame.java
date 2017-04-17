@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+package dinservergame;
 
 /**
  *
- * @author AdaZi131
+ * @author Adam Žingor <AdaZi131 at github.com>
  */
-public class main {
+public class DinserverGame {
 
     /**
      * @param args the command line arguments
