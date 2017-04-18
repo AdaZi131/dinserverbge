@@ -32,7 +32,7 @@ public class Dinserver {
          * @throws java.io.IOException
          */
     public static void main(String[] args) throws IOException {
-        int port = 2131;
+        int port = 2130;
         boolean listening = true;
         
         try (ServerSocket server = new ServerSocket(port)) {

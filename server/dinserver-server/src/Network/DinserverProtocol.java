@@ -80,7 +80,13 @@ public class DinserverProtocol {
             }
         } else if(state == INIT){
             try{
-                JSONArray auth = new JSONArray(input);
+                JSONArray init = new JSONArray(input);
+                if(init.length() > 0){
+                    
+                }else{
+                    output = "400 No objects recieved";
+                }
+                
             } catch (JSONException e) {
                 output = "400 JSON error "+e+"\nTry again";
             }

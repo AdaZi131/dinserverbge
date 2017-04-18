@@ -25,13 +25,13 @@ import java.util.ArrayList;
 public class DinserverGame {
     private ArrayList<String[][]> Objects = new ArrayList<>();
     /* Objects[type][index]
-        name [name]
+        object [name, type]
         position [x, y, z]
         scale [x, y, z]
         rotation [x, y, z]
     */
     
-    public int createObject(String name, String[] position, String[] scale, String[] rotation){
+    public int createObject(String name, String type, String[] position, String[] scale, String[] rotation){
         int exists = 000;
         String[][] result = new String[(5)][(3)];
         for(String[][] temp : Objects){
@@ -40,6 +40,7 @@ public class DinserverGame {
             }
         }
         result[0][0] = name + "." + exists; 
+        result[0][1] = type;
         result[1] = position; 
         result[2] = scale;
         result[3] = rotation;
