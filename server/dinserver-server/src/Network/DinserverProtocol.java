@@ -50,27 +50,13 @@ public class DinserverProtocol {
             }
         } else if(state == AUTH) {
             try {
-                JSONArray auth = new JSONArray(input);
-                if ("register".equals(auth.getString(0).toLowerCase())) {
-                    if (!auth.getString(1).contains(":") && !auth.getString(2).contains(":")) {
-                        String result = DinserverAuth.Register(auth.getString(1), auth.getString(2), socket);
-                        if (result.equals("200")) {
-                            output = "200";
-                            state = LOGGED;
-                        } else {
-                            output = result;
-                        }
-                    } else {
-                        output = "400 Wrong character";
-                    }
-                } else if (auth.get(0) != "register") {
-                    if (DinserverAuth.Login(auth.getString(0), auth.getString(1), socket)) {
+                JSONObject auth = new JSONObject(input);
+                    if (DinserverAuth.Login(auth.getString("username"), auth.getString("auth_id"), socket)) {
                         output = "200";
                         state = LOGGED;
                     }else{
                         output = "403";
                     }
-                }
             } catch (JSONException e) {
                 output = "400 JSON error "+e+"\nTry again";
             }

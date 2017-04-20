@@ -18,17 +18,18 @@ package Authentication;
 
 import Network.DinserverMaster;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
+import static java.lang.System.in;
+import java.net.HttpURLConnection;
 import java.net.Socket;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.net.URL;
+import java.nio.charset.Charset;
+import org.json.*;
+import org.apache.commons.io.IOUtils;
+
 
 
 /**
@@ -37,49 +38,43 @@ import java.util.logging.Logger;
  */
 public class DinserverAuth {
 
-    private static final String DATAPATH = "./data/auth.bin";
-    
-    public static String Register(String nick, String pass, Socket socket) throws NoSuchAlgorithmException, UnsupportedEncodingException, IOException{
-        /*MessageDigest md = MessageDigest.getInstance("SHA-256");
-        md.update(pass.getBytes("UTF-8"));
-        byte[] passDigest = md.digest();*/
-        boolean free = true;
-        String result = "";
-        
-        for (String temp : LoadData()) {
-            if(temp.split("\\:", -1)[0].equals(nick)){
-                free = false;
-                break;
-            }
-	}
-        if(free){
-            String str = nick+":" + /*new String(passDigest, "UTF-8")*/ pass + "\n";
-        
-            try (FileOutputStream output = new FileOutputStream(DATAPATH, true)) {
-                output.write(str.getBytes("UTF-8"));
-                output.flush();
-                output.close();
-                System.out.println("Registered new user: "+ str);
-                result = "200";
-                Login(nick, pass, socket);
-            }catch(IOException e){
-                    result = "Error "+e;
-            }
-        }else{
-            result = "403 Nick taken";
-        }
-        return result;
-    }
+   
     public static boolean Login(String nick, String pass, Socket socket) throws IOException{
         boolean logged = false;
-        String input = nick+":"+pass; 
         
-        for(String temp : LoadData()){
-            if(temp.equals(input)){
-                logged = true;
-                break;
+        JSONObject authRequest = new JSONObject();
+        authRequest.put("username",nick);
+        authRequest.put("auth_id", pass);
+        
+            String query = "http://127.0.0.1:5000/token";
+
+            URL url = new URL(query);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(5000);
+            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.setRequestMethod("POST");
+
+            OutputStream os = conn.getOutputStream();
+            os.write(authRequest.toString().getBytes(Charset.forName("UTF-8")));
+            os.close();
+            String output = new String();
+            StringBuilder sb = new StringBuilder();
+            int HttpResult = conn.getResponseCode();
+            if (HttpResult == HttpURLConnection.HTTP_OK) {
+                output = IOUtils.toString(new InputStreamReader(conn.getInputStream(), Charset.forName("UTF-8")));
+            } else {
+                System.out.println(conn.getResponseMessage());
             }
-        }
+
+           
+            JSONObject jsonObject = new JSONObject(output);
+            logged = jsonObject.getBoolean("ok");
+
+            conn.disconnect();
+
+            
         if(logged){
             if(DinserverMaster.addUser(nick, socket)){
                 System.out.println("User "+nick+" logged in");
@@ -88,28 +83,5 @@ public class DinserverAuth {
             }
         }
         return logged;
-    }
-    public static ArrayList<String> LoadData() throws IOException{
-        ArrayList<String> data = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(DATAPATH))){
-            String sCurrentLine;
-            while ((sCurrentLine = br.readLine()) != null) {
-                data.add(sCurrentLine);
-            }
-            br.close();
-        }catch (FileNotFoundException e){
-            CreateDataFile();
-        }
-        System.out.println("Loaded auth data");
-        return data;
-    }
-    private static void CreateDataFile(){
-        try {
-            File DATAFILE = new File(DATAPATH);
-            DATAFILE.getParentFile().mkdirs(); 
-            DATAFILE.createNewFile();
-        } catch (IOException ex) {
-            Logger.getLogger(DinserverAuth.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 }
